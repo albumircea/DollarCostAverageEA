@@ -26,7 +26,9 @@ class CDollarCostAverageParams : public CAppParams
                      ObjectAttrProtected(double, StepValue);
                      ObjectAttrProtected(ENUM_PERCENTAGE_OR_FIXED_PIPS, TakeProfitType);
                      ObjectAttrProtected(double, TakeProfitValue);
-                     ObjectAttrProtected(double, Lots);
+                     //ObjectAttrProtected(double, Lots);
+                     ObjectAttrProtected(ENUM_RISK_TYPE, RiskType);
+                     ObjectAttrProtected(double, RiskAmmount);
                      ObjectAttrProtected(double, FactorValue);
                      ObjectAttrProtected(string, Symbol);
                      ObjectAttrProtected(bool, NewCandleTrade);
@@ -62,13 +64,13 @@ public:
       }
 
       string message = NULL;
-      mLots = (mLots != 0.0) ? mLots : CSymbolInfo::GetMinLot(mSymbol);
-
-      if(!CTradeUtils::IsLotsValid(mLots, mSymbol, message))
-      {
-         Alert(message);
-         return false;
-      }
+//      mLots = (mLots != 0.0) ? mLots : CSymbolInfo::GetMinLot(mSymbol);
+//
+//      if(!CTradeUtils::IsLotsValid(mLots, mSymbol, message))
+//      {
+//         Alert(message);
+//         return false;
+//      }
 
       return true;
    }

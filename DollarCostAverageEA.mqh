@@ -32,14 +32,15 @@ private:
    CPositionInfo     _positionInfo;
    CCandleInfo       _candleInfo;
 
+   double            _lotsStart;
    double            _investedMoneyAmmount;
 public:
-   CDollarCostAverageEA(CDollarCostAverageParams& params)
+                     CDollarCostAverageEA(CDollarCostAverageParams& params)
    {
       _params = GetPointer(params);
-      
+
       _candleInfo.SetSymbol(_params.GetSymbol());
-      
+
       double tickSize = CSymbolInfo::GetTickSize(_params.GetSymbol());
       double point = CSymbolInfo::GetPoint(_params.GetSymbol());
       RefreshValues();
@@ -48,7 +49,7 @@ public:
          ModifyTrades();
       }
    }
-   ~CDollarCostAverageEA() {}
+                    ~CDollarCostAverageEA() {}
 
 
 public:
@@ -179,11 +180,38 @@ double CDollarCostAverageEA::GetStepPoints(void)
 //+------------------------------------------------------------------+
 double CDollarCostAverageEA::GetLots(void)
 {
+   string symbol = _params.GetSymbol();
+   if(_sTradesDetails.totalPositions == 0)
+   {
+      double lots = CSymbolInfo::GetMinLot(_params.GetSymbol());
+      if(_params.GetRiskType() == ENUM_RISK_CASH)
+      {
+         lots = CRiskService::GetLotsEquivalenceBasedOnMoneyAmmount(
+                   ORDER_TYPE_BUY,
+                   _params.GetSymbol(),
+                   _params.GetRiskAmmount(),
+                   0,
+                   ENUM_TARGET_LOSS
+                );
+
+         double lotStep = CSymbolInfo::GetLotStep(_params.GetSymbol());
+         int lotStepDigits = CMath::DecimalCount(lotStep);
+         lots = CMath::RoundToDecimal(lots, lotStepDigits, true);
+      }
+      if(_params.GetRiskType() == ENUM_RISK_FIXED_LOTS)
+      {
+         lots = _params.GetRiskAmmount();
+      }
+      _lotsStart = lots;
+   }
+
+
    return CRiskService::GetVolumeBasedOnMartinGaleBatch(
              _sTradesDetails.buyPositions,
              _params.GetFactorValue(),
              _params.GetSymbol(),
-             _params.GetLots(),
+//_params.GetLots(),
+             _lotsStart,
              ENUM_TYPE_MARTINGALE_MULTIPLICATION
           );
 }
